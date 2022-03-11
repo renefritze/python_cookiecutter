@@ -20,6 +20,17 @@ Features
 
 -   TODO
 
+After generating your project
+-----------------------------
+
+- Setup github secrets for pypi [github project settings]({{cookiecutter.repository_url}}/settings/secrets/actions/new):
+   - `PYPI_TOKEN` for "real" deploys on git tags
+   - `TEST_PYPI_TOKEN` for deploys to test.pypi.org
+- enable project on [readthedocs.org](https://readthedocs.org/dashboard/import/?)
+- setup branch protection+automerge in [github project settings]({{cookiecutter.repository_url}}/settings/branches)
+- Fix `Live examples` link above
+
+
 Credits
 -------
 
