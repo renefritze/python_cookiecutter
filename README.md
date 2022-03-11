@@ -15,3 +15,22 @@ cookiecutter https://github.com/WWU-AMM/python_cookiecutter
 
 Answer the prompts and cookiecutter generates a new directory
 with the given name.
+
+# Features
+
+- CI setup with github actions
+  - linting
+  - deployment to pypi on git tags
+  - test deployment to test.pypi on each push
+  - coverage upload to codecov.io
+  - dependabot for action updates
+  - auto black
+- documentation with sphinx
+  - markdown as default
+  - uses autoapi to generate docs for all (sub) modules
+  - need to enable the project on readthedocs.io
+- package version determined from git tags like "v0.0.1"
+- tests with pytest
+- cli package with typer
+- dependency via `dependencies.py`
+- pre-commit config (tries install+run automatically)
