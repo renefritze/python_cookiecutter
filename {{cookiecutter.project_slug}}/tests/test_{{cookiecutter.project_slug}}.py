@@ -15,7 +15,7 @@ def test_version():
 
 
 def test_import(timings_object):
-    import {{cookiecutter.project_slug}} 
+    import {{cookiecutter.project_slug}}
 
 def test_command_line_interface():
     """Test the CLI."""
