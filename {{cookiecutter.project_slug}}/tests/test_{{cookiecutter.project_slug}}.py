@@ -2,13 +2,11 @@
 
 """Tests for `{{cookiecutter.project_slug}}` package."""
 import pickle
-import numpy as np
 from functools import partial
 from tempfile import TemporaryFile
 
 from click.testing import CliRunner
 
-from {{cookiecutter.project_slug}} import cli
 
 
 
@@ -17,10 +15,11 @@ def test_version():
 
 
 def test_import(timings_object):
-    from {{cookiecutter.project_slug}} import *
+    import {{cookiecutter.project_slug}} 
 
 def test_command_line_interface():
     """Test the CLI."""
+    from {{cookiecutter.project_slug}} import cli
     runner = CliRunner()
     result = runner.invoke(cli.main)
     assert result.exit_code == 0
