@@ -5,15 +5,12 @@ black
 check-manifest
 codecov
 docutils
-numpy
 pre-commit
 pytest
 pytest-cov
 pytest-datadir
-pytest-memprof
 pytest-pycharm
 pytest-regressions
-pytest-timeout
 pytest-xdist
 readme_renderer[md]
 rstcheck
