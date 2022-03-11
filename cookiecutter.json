@@ -1,0 +1,11 @@
+{
+    "author": "FirstName OtherNames LastName",
+    "firstname": "{{cookiecutter.author.split(' ')[0]}}",
+    "lastname": "{{cookiecutter.author.split(' ')[-1]}}",
+    "email": "{{cookiecutter.firstname.lower()}}.{{cookiecutter.lastname.lower()}}@wwu.de",
+    "project_slug": "The name of your package",
+    "repository_url": "https://github.com/WWU-AMM/{{cookiecutter.project_slug}}",
+    "create_git_repository": "yes",
+    "short_description": "One-liner to describe the package",
+    "_copy_without_render": [".github/*", "docs/_templates/autoapi/*" ]
+}
