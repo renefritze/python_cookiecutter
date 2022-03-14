@@ -42,7 +42,7 @@ def get_config():
     cfg.style = "pep440"
     cfg.tag_prefix = ""
     cfg.parentdir_prefix = ""
-    cfg.versionfile_source = "pytimings/_version.py"
+    cfg.versionfile_source = "{{cookiecutter.project_slug}}/_version.py"
     cfg.verbose = False
     return cfg
 

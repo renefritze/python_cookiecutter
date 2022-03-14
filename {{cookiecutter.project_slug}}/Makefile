@@ -11,7 +11,7 @@ deps:
 	./dependencies.py
 
 black:
-	black examples pytimings tests
+	black docs {{cookiecutter.project_slug}} tests
 
 docs:
 	make -C docs html

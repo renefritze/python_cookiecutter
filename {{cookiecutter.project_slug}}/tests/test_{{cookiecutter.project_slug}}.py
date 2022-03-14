@@ -1,21 +1,16 @@
 #!/usr/bin/env python
 
 """Tests for `{{cookiecutter.project_slug}}` package."""
-import pickle
-from functools import partial
-from tempfile import TemporaryFile
-
 from click.testing import CliRunner
-
-
 
 
 def test_version():
     assert {{cookiecutter.project_slug}}.__version__
 
 
-def test_import(timings_object):
+def test_import():
     import {{cookiecutter.project_slug}}
+
 
 def test_command_line_interface():
     """Test the CLI."""

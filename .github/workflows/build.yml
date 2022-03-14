@@ -22,7 +22,7 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  python -m pip install cookiecutter
+                  python -m pip install cookiecutter build
                   git config --global user.email "you@example.com"
                   git config --global user.name "Your Name"
                   git config --global init.defaultBranch main
@@ -46,3 +46,5 @@ jobs:
                   cookiecutter -v --no-input -f -o /tmp/cookie_python . project_slug=foo3
                   python -m pip install /tmp/cookie_python/foo3
                   python -m pip uninstall -y foo3
+                  cd /tmp/cookie_python/foo3
+                  python -m build

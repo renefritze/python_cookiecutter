@@ -1,4 +1,4 @@
-# Welcome to PyTimings's documentation!
+# Welcome to {{cookiecutter.project_slug}}'s documentation!
 
 ```{toctree}
 :maxdepth: 2
