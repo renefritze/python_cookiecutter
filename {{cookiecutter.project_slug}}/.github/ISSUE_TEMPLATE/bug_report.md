@@ -8,7 +8,7 @@ labels: bug
 
 ### Environment Information
 
--   pytimings version:
+-   Project version:
 -   Python version:
 -   Operating System:
 

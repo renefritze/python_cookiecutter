@@ -6,15 +6,15 @@
 
 ## Stable release
 
-To install PyTimings, run this command in your terminal:
+To install {{cookiecutter.project_slug}}, run this command in your terminal:
 
 ```{code-block} console
 
-$ pip install pytimings
+$ pip install {{cookiecutter.project_slug}}
 
 ```
 
-This is the preferred method to install PyTimings, as it will always install the most recent stable release.
+This is the preferred method to install {{cookiecutter.project_slug}}, as it will always install the most recent stable release.
 
 If you don't have [pip][pip] installed, this [Python installation guide][python installation guide] can guide
 you through the process.
@@ -25,13 +25,13 @@ you through the process.
 
 ## From sources
 
-The sources for PyTimings can be downloaded from the [Github repo][github repo].
+The sources for {{cookiecutter.project_slug}} can be downloaded from the [Github repo][github repo].
 
 You can either clone the public repository:
 
 ```{code-block} console
 
-$ git clone git://github.com/WWU-AMM/pytimings
+$ git clone {{cookiecutter.repository_url}}.git
 
 ```
 
@@ -39,7 +39,7 @@ Or download the [tarball][tarball]:
 
 ```{code-block} console
 
-$ curl -OJL https://github.com/WWU-AMM/pytimings/tarball/main
+$ curl -OJL {{cookiecutter.repository_url}}/tarball/main
 
 ```
 
@@ -51,6 +51,6 @@ $ pip install .
 
 ```
 
-[github repo]: https://github.com/WWU-AMM/pytimings
+[github repo]: {{cookiecutter.repository_url}}
 
-[tarball]: https://github.com/WWU-AMM/pytimings/tarball/main
+[tarball]: {{cookiecutter.repository_url}}/tarball/main

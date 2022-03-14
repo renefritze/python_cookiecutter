@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=pytimings
+set SPHINXPROJ={{cookiecutter.project_slug}}
 
 if "%1" == "" goto help
 
