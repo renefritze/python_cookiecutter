@@ -47,4 +47,4 @@ jobs:
                   python -m pip install /tmp/cookie_python/foo3
                   python -m pip uninstall -y foo3
                   cd /tmp/cookie_python/foo3
-                  python -m pip build
+                  python -m build
