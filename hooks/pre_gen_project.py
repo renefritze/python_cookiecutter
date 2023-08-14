@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import sys
 
 
 def _validate_input():
