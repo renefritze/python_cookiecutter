@@ -24,6 +24,6 @@ We'll start by importing our module.
 
 ```{code-cell}
 
-import {{cookiecutter.project_slug}}
-{{cookiecutter.project_slug}}.__version__
+import {{cookiecutter.__module_name}}
+{{cookiecutter.__module_name}}.__version__
 ```

@@ -10,4 +10,4 @@ recursive-exclude * *.py[co]
 recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
 include versioneer.py
 include dependencies.py
-include {{cookiecutter.project_slug}}/_version.py
+include src/{{cookiecutter.__module_name}}/_version.py

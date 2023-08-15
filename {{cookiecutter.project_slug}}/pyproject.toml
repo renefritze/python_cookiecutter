@@ -14,7 +14,7 @@ line-length = 120
 "tests/*.py" = ["S101", "D103"]
 
 [tool.pytest.ini_options]
-addopts = "--cov={{ cookiecutter.project_slug }}/ --cov-report=term-missing"
+addopts = "--cov={{ cookiecutter.__module_name }}/ --cov-report=term-missing"
 
 
 [tool.hatch]
@@ -27,7 +27,7 @@ source = "vcs"
 fallback-version = "0.0.0"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "src/{{ cookiecutter.project_slug }}/_version.py"
+version-file = "src/{{ cookiecutter.__module_name }}/_version.py"
 
 [tool.hatch.envs.default]
 python = "{{ cookiecutter.minimum_python_version }}"
@@ -37,7 +37,7 @@ test = "pytest"
 lint = [
   "black .",
   "ruff --fix .",
-  "mypy src/{{ cookiecutter.project_slug }}/",
+  "mypy src/{{ cookiecutter.__module_name }}/",
 ]
 
 docs-build = "make -C docs html"
