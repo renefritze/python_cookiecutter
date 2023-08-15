@@ -1,10 +1,9 @@
-#!/usr/bin/env python
-
 """Tests for `{{cookiecutter.project_slug}}` package."""
 from click.testing import CliRunner
 
 
 def test_version():
+    import {{cookiecutter.project_slug}}
     assert {{cookiecutter.project_slug}}.__version__
 
 
