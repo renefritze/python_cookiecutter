@@ -9,7 +9,10 @@ def _precommit():
     def _error(e):
         print(e.output)
         log = os.path.expanduser("~/.cache/pre-commit/pre-commit.log")
-        print(open(log, "rt").read())
+        try:
+            print(open(log, "rt").read())
+        except FileNotFoundError:
+            print(f"pre-commit log not found at {log}")
 
     try:
         subprocess.check_output(["pre-commit", "--help"])
@@ -31,21 +34,18 @@ def _precommit():
 
 def _git_init():
     try:
-        _precommit()
-    except subprocess.CalledProcessError:
-        pass
-    try:
         subprocess.check_output(["git", "--version"])
     except (PermissionError, FileNotFoundError, subprocess.CalledProcessError):
         return False
     subprocess.check_output(["git", "init"])
     subprocess.check_output(["git", "add", "."])
-    subprocess.check_output(["git", "commit", "-m", "initial commit"])
+    if _precommit() == -1:
+        _precommit()
+    subprocess.check_output(["git", "commit", "-am", "initial commit"])
 
 
 if __name__ == "__main__":
     if "{{ cookiecutter.create_git_repository|lower }}" != "yes":
         sys.exit(0)
 
-    if _git_init():
-        _precommit()
+    _git_init()
