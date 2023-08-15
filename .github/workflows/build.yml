@@ -59,7 +59,7 @@ jobs:
         python -m pip install .[dev]
         make -C docs html
     - name: upload generated projects
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: cookie_python
         path: /tmp/cookie_python
