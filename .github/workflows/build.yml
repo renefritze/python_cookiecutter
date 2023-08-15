@@ -40,8 +40,9 @@ jobs:
       run: |
         GIT=$(which git)
         sudo chmod -x ${GIT}
-        cookiecutter -v --no-input -f -o /tmp/cookie_python . project_slug=foo1 minimum_python_version=${{ matrix.python-version }}
-        python -m pip install /tmp/cookie_python/foo1
+        cookiecutter -v --no-input -f -o /tmp/cookie_python . project_slug=foo1-bar minimum_python_version=${{ matrix.python-version }}
+        python -m pip install /tmp/cookie_python/foo1-bar
+        python -c "import foo1_bar; print(foo1_bar.__version__)"
         python -m pip uninstall -y foo1
         sudo chmod +x ${GIT}
     - name: with git only
