@@ -10,7 +10,7 @@ Then do this in a terminal:
 
 ```
 cd /where/you/store/your/projects
-cookiecutter https://github.com/WWU-AMM/python_cookiecutter
+cookiecutter https://github.com/renefritze/python_cookiecutter
 ```
 
 Answer the prompts and cookiecutter generates a new directory
