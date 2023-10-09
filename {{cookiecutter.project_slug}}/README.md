@@ -18,7 +18,7 @@ After generating your project
 
 - setup branch protection+automerge in [github project settings]({{cookiecutter.repository_url}}/settings/branches)
 - request install for the codecov.io app in [github project settings]({{cookiecutter.repository_url}}/settings/installations)
-- configure codecov.io in [codecov.io settings](https://codecov.io/gh/{{cookiecutter.github_username}}/{{cookiecutter.project_slug}}/settings)
+- configure codecov.io in [codecov.io settings](https://codecov.io/gh/arup-group/cookiecutter.project_slug}}/settings)
 - add the `CODECOV_TOKEN` secret in [github project settings]({{cookiecutter.repository_url}}/settings/secrets/actions)
 
 
