@@ -14,7 +14,7 @@ line-length = 120
 "tests/*.py" = ["S101", "D103"]
 
 [tool.pytest.ini_options]
-addopts = "--cov={{ cookiecutter.__module_name }}/ --cov-report=term-missing"
+addopts = "--cov={{ cookiecutter.__module_name }} --cov-report=term-missing"
 
 
 [tool.hatch]
