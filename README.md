@@ -18,6 +18,7 @@ with the given name.
 
 # Features
 
+- hatch buildsystem via pyproject.toml
 - CI setup with github actions
   - linting
   - deployment to pypi on git tags
@@ -31,6 +32,10 @@ with the given name.
   - need to enable the project on readthedocs.io
 - package version determined from git tags like "v0.0.1"
 - tests with pytest
-- cli package with typer
-- dependency via `dependencies.py`
+- cli scripts with typer
 - pre-commit config (tries install+run automatically)
+  - black
+  - ruff
+  - yamlfmt
+  - ...
+-
