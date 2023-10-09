@@ -59,7 +59,7 @@ jobs:
         cd /tmp/cookie_python/foo3
         python -c "import tests"
         python -m pip install .[dev]
-        make -C docs html
+        # make -C docs html
     - name: upload generated projects
       uses: actions/upload-artifact@v3
       with:

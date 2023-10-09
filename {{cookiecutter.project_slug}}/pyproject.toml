@@ -63,7 +63,7 @@ dependencies = [ "rich", "packaging" , "typer"]
 [project.optional-dependencies]
 # myst current require sphinx<6
 docs = ["sphinx<6",
-    "sphinx-autoapi",
+    "sphinx-autoapi<3",
     "myst-nb",
     "furo"]
 dev = [
