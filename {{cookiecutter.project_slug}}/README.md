@@ -16,11 +16,10 @@ Features
 After generating your project
 -----------------------------
 
-- Setup github secrets for pypi [github project settings]({{cookiecutter.repository_url}}/settings/secrets/actions/new):
-   - `PYPI_TOKEN` for "real" deploys on git tags
-   - `TEST_PYPI_TOKEN` for deploys to test.pypi.org
 - setup branch protection+automerge in [github project settings]({{cookiecutter.repository_url}}/settings/branches)
--
+- request install for the codecov.io app in [github project settings]({{cookiecutter.repository_url}}/settings/installations)
+- configure codecov.io in [codecov.io settings](https://codecov.io/gh/arup-group/cookiecutter.project_slug}}/settings)
+- add the `CODECOV_TOKEN` secret in [github project settings]({{cookiecutter.repository_url}}/settings/secrets/actions)
 
 
 Credits
