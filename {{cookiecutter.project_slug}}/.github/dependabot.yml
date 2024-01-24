@@ -1,36 +1,28 @@
 ---
-# Configuration: https://dependabot.com/docs/config-file/
-# Docs: https://docs.github.com/en/github/administering-a-repository/keeping-your-dependencies-updated-automatically
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
 version: 2
-
 updates:
-    - package-ecosystem: pip
-      directory: /
-      schedule:
-          interval: weekly
-      allow:
-          - dependency-type: all
-      commit-message:
-          prefix: ':arrow_up:'
-      open-pull-requests-limit: 50
-
-    - package-ecosystem: github-actions
-      directory: /
-      schedule:
-          interval: weekly
-      allow:
-          - dependency-type: all
-      commit-message:
-          prefix: ':arrow_up:'
-      open-pull-requests-limit: 50
-
-    - package-ecosystem: docker
-      directory: /docker
-      schedule:
-          interval: weekly
-      allow:
-          - dependency-type: all
-      commit-message:
-          prefix: ':arrow_up:'
-      open-pull-requests-limit: 50
+- package-ecosystem: github-actions
+  directory: /  # Location of package manifests
+  schedule:
+    interval: monthly
+- package-ecosystem: pip
+  directory: /  # Location of package manifests
+  schedule:
+    interval: monthly
+- package-ecosystem: nuget
+  directory: /  # Location of package manifests
+  schedule:
+    interval: monthly
+- package-ecosystem: npm
+  directory: /  # Location of package manifests
+  schedule:
+    interval: monthly
+- package-ecosystem: docker
+  directory: /  # Location of package manifests
+  schedule:
+    interval: monthly

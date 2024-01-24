@@ -1,0 +1,765 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 22,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_CONFIGURATION_TYPES": "Release;Debug;Coverage;RelWithChecks",
+                "CMAKE_CXX_SCAN_FOR_MODULES": "Off"
+            },
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/build/${presetName}/install"
+        },
+        {
+            "name": "clang_base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_CXX_FLAGS": "-Wall -Werror -pedantic-errors -Wextra -Wconversion",
+                "CMAKE_CXX_FLAGS_DEBUG": "-Og -g -DOASYS_CORE_ENABLE_CHECKS",
+                "CMAKE_CXX_FLAGS_RELEASE": "-O3 ",
+                "CMAKE_CXX_FLAGS_RELWITHCHECKS": "-O3 -g -DOASYS_CORE_ENABLE_CHECKS",
+                "CMAKE_CXX_FLAGS_COVERAGE": "-Og -g -fcoverage-mcdc -fprofile-instr-generate -fcoverage-mapping -DOASYS_CORE_ENABLE_CHECKS"
+            }
+        },
+        {
+            "name": "gcc_base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "g++",
+                "CMAKE_CXX_FLAGS": "-Wall -Werror -pedantic-errors -Wextra -Wconversion",
+                "CMAKE_CXX_FLAGS_DEBUG": "-Og -g -DOASYS_CORE_ENABLE_CHECKS",
+                "CMAKE_CXX_FLAGS_RELEASE": "-O3 -flto=auto",
+                "CMAKE_CXX_FLAGS_RELWITHCHECKS": "-O3 -flto=auto -g -DOASYS_CORE_ENABLE_CHECKS",
+                "CMAKE_CXX_FLAGS_COVERAGE": "-Og -g -fprofile-arcs -ftest-coverage -DOASYS_CORE_ENABLE_CHECKS"
+            }
+        },
+        {
+            "name": "linux_base",
+            "hidden": true,
+            "inherits": [
+                "base",
+                "ninja"
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        },
+        {
+            "name": "linux_clang",
+            "hidden": false,
+            "inherits": [
+                "base",
+                "ninja",
+                "linux_base",
+                "clang_base"
+            ],
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-linux-clang",
+                "VCPKG_HOST_TRIPLET": "x64-linux-clang"
+            },
+            "displayName": "Clang"
+        },
+        {
+            "name": "linux_gcc",
+            "hidden": false,
+            "inherits": [
+                "base",
+                "ninja",
+                "linux_base",
+                "gcc_base"
+            ],
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-linux-gcc",
+                "VCPKG_HOST_TRIPLET": "x64-linux-gcc"
+            },
+            "displayName": "Gcc"
+        },
+        {
+            "name": "ninja",
+            "hidden": true,
+            "generator": "Ninja Multi-Config"
+        },
+        {
+            "name": "win_clang",
+            "hidden": false,
+            "inherits": [
+                "base",
+                "ninja",
+                "windows_base",
+                "clang_base"
+            ],
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-msys-static-clang",
+                "VCPKG_HOST_TRIPLET": "x64-msys-static-clang",
+                "BUILD_SHARED_LIBS": "OFF",
+                "CMAKE_CXX_FLAGS_RELEASE": "-O3",
+                "CMAKE_CXX_FLAGS_RELWITHCHECKS": "-O3 -g -DOASYS_CORE_ENABLE_CHECKS"
+            },
+            "displayName": "Clang"
+        },
+        {
+            "name": "win_gcc",
+            "hidden": false,
+            "inherits": [
+                "base",
+                "ninja",
+                "windows_base",
+                "gcc_base"
+            ],
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-msys-static-gcc",
+                "VCPKG_HOST_TRIPLET": "x64-msys-static-gcc",
+                "BUILD_SHARED_LIBS": "OFF",
+                "CMAKE_CXX_FLAGS_COVERAGE": "-Og -g -fprofile-arcs -ftest-coverage -DOASYS_CORE_ENABLE_CHECKS"
+            },
+            "displayName": "Gcc"
+        },
+        {
+            "name": "win_msbuild",
+            "binaryDir": "${sourceDir}/build/win_msbuild",
+            "installDir": "${sourceDir}/build/win_msbuild/install",
+            "hidden": false,
+            "inherits": [
+                "windows_base"
+            ],
+            "generator": "Visual Studio 17 2022",
+            "cacheVariables": {
+                "CMAKE_CXX_FLAGS": "/W4 /WX /wd4275 /wd4251 /bigobj",
+                "CMAKE_CXX_FLAGS_DEBUG": "/EHsc /Zi /Od  /DOASYS_CORE_ENABLE_CHECKS",
+                "CMAKE_CXX_FLAGS_RELEASE": "/EHsc /O2",
+                "CMAKE_CXX_FLAGS_RELWITHCHECKS": "/EHsc /O2 /Zi /DOASYS_CORE_ENABLE_CHECKS",
+                "CMAKE_CXX_FLAGS_COVERAGE": "/EHsc /O0 /PROFILE  /DOASYS_CORE_ENABLE_CHECKS",
+                "CMAKE_MAP_IMPORTED_CONFIG_RELWITHCHECKS": "Release",
+                "CMAKE_MAP_IMPORTED_CONFIG_COVERAGE": "Release",
+                "VCPKG_TARGET_TRIPLET": "x64-msvc-static",
+                "VCPKG_HOST_TRIPLET": "x64-msvc-static",
+                "BUILD_SHARED_LIBS": "ON"
+            },
+            "displayName": "Msbuild"
+        },
+        {
+            "name": "win_msvc",
+            "binaryDir": "${sourceDir}/build/win_msvc",
+            "installDir": "${sourceDir}/build/win_msvc/install",
+            "hidden": false,
+            "inherits": [
+                "windows_base"
+            ],
+            "generator": "Ninja Multi-Config",
+            "cacheVariables": {
+                "CMAKE_CXX_FLAGS": "/W4 /WX /wd4275 /wd4251 /bigobj",
+                "CMAKE_CXX_FLAGS_DEBUG": "/EHsc /Zi /Od  /DOASYS_CORE_ENABLE_CHECKS",
+                "CMAKE_CXX_FLAGS_RELEASE": "/EHsc /O2",
+                "CMAKE_CXX_FLAGS_RELWITHCHECKS": "/EHsc /O2 /Zi /DOASYS_CORE_ENABLE_CHECKS",
+                "CMAKE_CXX_FLAGS_COVERAGE": "/EHsc /O0 /PROFILE  /DOASYS_CORE_ENABLE_CHECKS",
+                "CMAKE_MAP_IMPORTED_CONFIG_RELWITHCHECKS": "Release",
+                "CMAKE_MAP_IMPORTED_CONFIG_COVERAGE": "Release",
+                "VCPKG_TARGET_TRIPLET": "x64-msvc-static",
+                "VCPKG_HOST_TRIPLET": "x64-msvc-static",
+                "BUILD_SHARED_LIBS": "ON",
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe"
+            },
+            "displayName": "Msvc"
+        },
+        {
+            "name": "windows_base",
+            "hidden": true,
+            "inherits": [
+                "base"
+            ],
+            "condition": {
+                "type": "matches",
+                "string": "${hostSystemName}",
+                "regex": "Windows|CYGWIN.*|MSYS.*"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "linux_clang_coverage",
+            "configurePreset": "linux_clang",
+            "displayName": "Coverage",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "linux_clang_debug",
+            "configurePreset": "linux_clang",
+            "displayName": "Debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "linux_clang_release",
+            "configurePreset": "linux_clang",
+            "displayName": "Release",
+            "configuration": "Release"
+        },
+        {
+            "name": "linux_clang_relwithchecks",
+            "configurePreset": "linux_clang",
+            "displayName": "RelWithChecks",
+            "configuration": "RelWithChecks"
+        },
+        {
+            "name": "linux_gcc_coverage",
+            "configurePreset": "linux_gcc",
+            "displayName": "Coverage",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "linux_gcc_debug",
+            "configurePreset": "linux_gcc",
+            "displayName": "Debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "linux_gcc_release",
+            "configurePreset": "linux_gcc",
+            "displayName": "Release",
+            "configuration": "Release"
+        },
+        {
+            "name": "linux_gcc_relwithchecks",
+            "configurePreset": "linux_gcc",
+            "displayName": "RelWithChecks",
+            "configuration": "RelWithChecks"
+        },
+        {
+            "name": "win_clang_coverage",
+            "configurePreset": "win_clang",
+            "displayName": "Coverage",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "win_clang_debug",
+            "configurePreset": "win_clang",
+            "displayName": "Debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "win_clang_release",
+            "configurePreset": "win_clang",
+            "displayName": "Release",
+            "configuration": "Release"
+        },
+        {
+            "name": "win_clang_relwithchecks",
+            "configurePreset": "win_clang",
+            "displayName": "RelWithChecks",
+            "configuration": "RelWithChecks"
+        },
+        {
+            "name": "win_gcc_coverage",
+            "configurePreset": "win_gcc",
+            "displayName": "Coverage",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "win_gcc_debug",
+            "configurePreset": "win_gcc",
+            "displayName": "Debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "win_gcc_release",
+            "configurePreset": "win_gcc",
+            "displayName": "Release",
+            "configuration": "Release"
+        },
+        {
+            "name": "win_gcc_relwithchecks",
+            "configurePreset": "win_gcc",
+            "displayName": "RelWithChecks",
+            "configuration": "RelWithChecks"
+        },
+        {
+            "name": "win_msbuild_coverage",
+            "configurePreset": "win_msbuild",
+            "displayName": "Coverage",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "win_msbuild_debug",
+            "configurePreset": "win_msbuild",
+            "displayName": "Debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "win_msbuild_release",
+            "configurePreset": "win_msbuild",
+            "displayName": "Release",
+            "configuration": "Release"
+        },
+        {
+            "name": "win_msbuild_relwithchecks",
+            "configurePreset": "win_msbuild",
+            "displayName": "RelWithChecks",
+            "configuration": "RelWithChecks"
+        },
+        {
+            "name": "win_msvc_coverage",
+            "configurePreset": "win_msvc",
+            "displayName": "Coverage",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "win_msvc_debug",
+            "configurePreset": "win_msvc",
+            "displayName": "Debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "win_msvc_release",
+            "configurePreset": "win_msvc",
+            "displayName": "Release",
+            "configuration": "Release"
+        },
+        {
+            "name": "win_msvc_relwithchecks",
+            "configurePreset": "win_msvc",
+            "displayName": "RelWithChecks",
+            "configuration": "RelWithChecks"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "linux_clang_coverage",
+            "displayName": "Coverage",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "linux_clang",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "linux_clang_debug",
+            "displayName": "Debug",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "linux_clang",
+            "configuration": "Debug"
+        },
+        {
+            "name": "linux_clang_release",
+            "displayName": "Release",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "linux_clang",
+            "configuration": "Release"
+        },
+        {
+            "name": "linux_clang_relwithchecks",
+            "displayName": "RelWithChecks",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "linux_clang",
+            "configuration": "RelWithChecks"
+        },
+        {
+            "name": "linux_gcc_coverage",
+            "displayName": "Coverage",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "linux_gcc",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "linux_gcc_debug",
+            "displayName": "Debug",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "linux_gcc",
+            "configuration": "Debug"
+        },
+        {
+            "name": "linux_gcc_release",
+            "displayName": "Release",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "linux_gcc",
+            "configuration": "Release"
+        },
+        {
+            "name": "linux_gcc_relwithchecks",
+            "displayName": "RelWithChecks",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "linux_gcc",
+            "configuration": "RelWithChecks"
+        },
+        {
+            "name": "test_base",
+            "displayName": "Test Base",
+            "hidden": true,
+            "output": {
+                "outputOnFailure": true,
+                "outputJUnitFile": "junit-${presetName}.xml"
+            },
+            "execution": {
+                "noTestsAction": "error"
+            }
+        },
+        {
+            "name": "win_clang_coverage",
+            "displayName": "Coverage",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_clang",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "win_clang_debug",
+            "displayName": "Debug",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_clang",
+            "configuration": "Debug"
+        },
+        {
+            "name": "win_clang_release",
+            "displayName": "Release",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_clang",
+            "configuration": "Release"
+        },
+        {
+            "name": "win_clang_relwithchecks",
+            "displayName": "RelWithChecks",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_clang",
+            "configuration": "RelWithChecks"
+        },
+        {
+            "name": "win_gcc_coverage",
+            "displayName": "Coverage",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_gcc",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "win_gcc_debug",
+            "displayName": "Debug",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_gcc",
+            "configuration": "Debug"
+        },
+        {
+            "name": "win_gcc_release",
+            "displayName": "Release",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_gcc",
+            "configuration": "Release"
+        },
+        {
+            "name": "win_gcc_relwithchecks",
+            "displayName": "RelWithChecks",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_gcc",
+            "configuration": "RelWithChecks"
+        },
+        {
+            "name": "win_msbuild_coverage",
+            "displayName": "Coverage",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_msbuild",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "win_msbuild_debug",
+            "displayName": "Debug",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_msbuild",
+            "configuration": "Debug"
+        },
+        {
+            "name": "win_msbuild_release",
+            "displayName": "Release",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_msbuild",
+            "configuration": "Release"
+        },
+        {
+            "name": "win_msbuild_relwithchecks",
+            "displayName": "RelWithChecks",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_msbuild",
+            "configuration": "RelWithChecks"
+        },
+        {
+            "name": "win_msvc_coverage",
+            "displayName": "Coverage",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_msvc",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "win_msvc_debug",
+            "displayName": "Debug",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_msvc",
+            "configuration": "Debug"
+        },
+        {
+            "name": "win_msvc_release",
+            "displayName": "Release",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_msvc",
+            "configuration": "Release"
+        },
+        {
+            "name": "win_msvc_relwithchecks",
+            "displayName": "RelWithChecks",
+            "hidden": false,
+            "inherits": [
+                "test_base"
+            ],
+            "configurePreset": "win_msvc",
+            "configuration": "RelWithChecks"
+        }
+    ],
+    "packagePresets": [
+        {
+            "name": "linux_gcc",
+            "inherits": [
+                "linux_gcc_nuget"
+            ],
+            "hidden": false,
+            "configurePreset": "linux_gcc",
+            "displayName": "Gcc",
+            "configurations": [
+                "DEBUG",
+                "RELEASE"
+            ],
+            "variables": {
+                "build_configs_to_package": "DEBUG;RELEASE"
+            }
+        },
+        {
+            "name": "linux_gcc_coverage",
+            "configurePreset": "linux_gcc",
+            "displayName": "Coverage",
+            "configurations": [
+                "Coverage"
+            ],
+            "inherits": [
+                "linux_gcc_nuget"
+            ],
+            "hidden": false,
+            "variables": {
+                "build_configs_to_package": "Coverage"
+            }
+        },
+        {
+            "name": "linux_gcc_debug",
+            "configurePreset": "linux_gcc",
+            "displayName": "Debug",
+            "configurations": [
+                "Debug"
+            ],
+            "inherits": [
+                "linux_gcc_nuget"
+            ],
+            "hidden": false,
+            "variables": {
+                "build_configs_to_package": "Debug"
+            }
+        },
+        {
+            "name": "linux_gcc_nuget",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "hidden": true,
+            "generators": [
+                "NuGet"
+            ]
+        },
+        {
+            "name": "linux_gcc_release",
+            "configurePreset": "linux_gcc",
+            "displayName": "Release",
+            "configurations": [
+                "Release"
+            ],
+            "inherits": [
+                "linux_gcc_nuget"
+            ],
+            "hidden": false,
+            "variables": {
+                "build_configs_to_package": "Release"
+            }
+        },
+        {
+            "name": "linux_gcc_relwithchecks",
+            "configurePreset": "linux_gcc",
+            "displayName": "RelWithChecks",
+            "configurations": [
+                "RelWithChecks"
+            ],
+            "inherits": [
+                "linux_gcc_nuget"
+            ],
+            "hidden": false,
+            "variables": {
+                "build_configs_to_package": "RelWithChecks"
+            }
+        },
+        {
+            "name": "win_msvc",
+            "inherits": [
+                "win_msvc_nuget"
+            ],
+            "hidden": false,
+            "configurePreset": "win_msvc",
+            "displayName": "Msvc",
+            "configurations": [
+                "DEBUG",
+                "RELEASE"
+            ],
+            "variables": {
+                "build_configs_to_package": "DEBUG;RELEASE"
+            }
+        },
+        {
+            "name": "win_msvc_coverage",
+            "configurePreset": "win_msvc",
+            "displayName": "Coverage",
+            "configurations": [
+                "Coverage"
+            ],
+            "inherits": [
+                "win_msvc_nuget"
+            ],
+            "hidden": false,
+            "variables": {
+                "build_configs_to_package": "Coverage"
+            }
+        },
+        {
+            "name": "win_msvc_debug",
+            "configurePreset": "win_msvc",
+            "displayName": "Debug",
+            "configurations": [
+                "Debug"
+            ],
+            "inherits": [
+                "win_msvc_nuget"
+            ],
+            "hidden": false,
+            "variables": {
+                "build_configs_to_package": "Debug"
+            }
+        },
+        {
+            "name": "win_msvc_nuget",
+            "condition": {
+                "type": "matches",
+                "string": "${hostSystemName}",
+                "regex": "Windows|CYGWIN.*|MSYS.*"
+            },
+            "hidden": true,
+            "generators": [
+                "NuGet"
+            ]
+        },
+        {
+            "name": "win_msvc_release",
+            "configurePreset": "win_msvc",
+            "displayName": "Release",
+            "configurations": [
+                "Release"
+            ],
+            "inherits": [
+                "win_msvc_nuget"
+            ],
+            "hidden": false,
+            "variables": {
+                "build_configs_to_package": "Release"
+            }
+        },
+        {
+            "name": "win_msvc_relwithchecks",
+            "configurePreset": "win_msvc",
+            "displayName": "RelWithChecks",
+            "configurations": [
+                "RelWithChecks"
+            ],
+            "inherits": [
+                "win_msvc_nuget"
+            ],
+            "hidden": false,
+            "variables": {
+                "build_configs_to_package": "RelWithChecks"
+            }
+        }
+    ]
+}

@@ -8,6 +8,11 @@
     "repository_url": "https://github.com/arup-group/{{cookiecutter.project_slug}}",
     "create_git_repository": "yes",
     "short_description": "One-liner to describe the package",
-    "minimum_python_version": "3.8",
-    "_copy_without_render": [".github/*", "docs/_templates/autoapi/*", "docs/substitutions.py" ]
+    "minimum_python_version": "3.13",
+    "_copy_without_render": [
+        ".github/workflows/bot.yml",
+        ".github/workflows/trigger_sanity_checks_for_prs.yml",
+        "docs/_templates/autoapi/*",
+        "docs/substitutions.py"
+    ]
 }

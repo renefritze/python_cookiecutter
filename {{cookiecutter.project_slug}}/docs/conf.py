@@ -17,16 +17,16 @@
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 #
-import sys
 import os
+import sys
 from pathlib import Path
 
 this_dir = Path(__file__).resolve().parent
-root_dir = (this_dir / '..').resolve()
+root_dir = (this_dir / "..").resolve()
 sys.path.insert(0, str(root_dir))
 sys.path.insert(0, str(this_dir))
 
-import {{cookiecutter.__module_name}}
+import {{cookiecutter.__module_name}}  # noqa: E402
 
 # -- General configuration ---------------------------------------------
 
@@ -36,12 +36,17 @@ import {{cookiecutter.__module_name}}
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', "autoapi", "myst_nb",
-                  "sphinx.ext.coverage",
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "autoapi",
+    "myst_nb",
+    "sphinx.ext.coverage",
     "sphinx.ext.autosummary",
     "sphinx.ext.linkcode",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.mathjax"]
+    "sphinx.ext.mathjax",
+]
 # this enables:
 # substitutions-with-jinja2, direct-latex-math and definition-lists
 # ref: https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html
@@ -67,22 +72,22 @@ nb_execution_timeout = 240  # there is an interpolation test
 nb_execution_show_tb = True
 nb_execution_mode = "cache"
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.ipynb': 'myst-nb',
-    '.md': 'myst-nb',
+    ".rst": "restructuredtext",
+    ".ipynb": "myst-nb",
+    ".md": "myst-nb",
 }
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = '{{cookiecutter.project_slug}}'
+project = "{{cookiecutter.project_slug}}"
 copyright = "2023, {{cookiecutter.author}}"
 author = "{{cookiecutter.author}}"
 
@@ -102,10 +107,10 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
@@ -139,17 +144,17 @@ html_sidebars = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # Pngmath should try to align formulas properly.
 pngmath_use_preview = True
 
 autoapi_python_use_implicit_namespaces = True
-autoapi_dirs = [root_dir / 'src'/ '{{cookiecutter.__module_name}}']
-autoapi_type = 'python'
+autoapi_dirs = [root_dir / "src" / "{{cookiecutter.__module_name}}"]
+autoapi_type = "python"
 # allows incremental build
 autoapi_keep_files = True
-autoapi_template_dir = this_dir / '_templates' / 'autoapi'
+autoapi_template_dir = this_dir / "_templates" / "autoapi"
 
 coverage_ignore_modules = r"""
     """.split()

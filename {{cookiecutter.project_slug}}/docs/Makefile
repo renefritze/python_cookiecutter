@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    = -W --keep-going
-SPHINXBUILD   = python -m sphinx
+SPHINXBUILD   = uv run --frozen python -m sphinx
 SPHINXPROJ    = {{cookiecutter.project_slug}}
 SOURCEDIR     = .
 BUILDDIR      = _build

@@ -1,0 +1,31 @@
+---
+codecov:
+  notify:
+    after_n_builds: 1
+coverage:
+  status:
+    patch:
+      default:
+        target: 80%
+        paths:
+        - src/
+        - python/
+    project:
+      default: false  # disable default status
+      source:  # report coverage status for source files
+        target: 80%
+        paths:
+        - src/
+      tests:  # report coverage status for tests...
+        target: 0%  # ... but let the check always pass
+        paths:
+        - tests/
+      python:  # report coverage status for python directory
+        target: 80%
+        threshold: 5%  # TODO: remove threshold once we have reached 80% coverage
+        paths:
+        - python/
+
+# makes no sense to execute benchmarks with coverage instrumentation
+ignore:
+- benchmarks

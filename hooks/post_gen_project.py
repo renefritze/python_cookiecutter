@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
 import os
-import sys
 import subprocess
+import sys
+from pathlib import Path
 
 
 def _precommit():
     def _error(e):
-        print(e.output)
-        log = os.path.expanduser("~/.cache/pre-commit/pre-commit.log")
+        print(e.output.decode())
+        log = Path.home() / ".cache" / "pre-commit" / "pre-commit.log"
         try:
-            print(open(log, "rt").read())
+            print(log.read_text())
         except FileNotFoundError:
             print(f"pre-commit log not found at {log}")
 
@@ -41,17 +42,14 @@ def _git_init():
     subprocess.check_output(["git", "add", "."])
     if _precommit() == -1:
         _precommit()
-    try:
-        subprocess.check_output(["git", "commit", "-am", "initial commit"])
-    except subprocess.CalledProcessError:
-        subprocess.check_output(
-            ["git", "commit", "-am", "initial commit", "--no-verify"]
-        )
-        print("pre-commit failed, but commit was made anyway")
+    # skip pre-commit hook which prevents committing to main branch for the first commit
+    env = os.environ.copy()
+    env["SKIP"] = "no-commit-to-branch"
+    subprocess.check_output(["git", "commit", "-am", "initial commit"], env=env)
 
 
 if __name__ == "__main__":
-    if "{{ cookiecutter.create_git_repository|lower }}" != "yes":
+    if "{{ cookiecutter.create_git_repository|lower }}" != "yes":  # noqa: PLR0133
         sys.exit(0)
 
     _git_init()

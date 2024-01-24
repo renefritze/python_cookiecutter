@@ -45,8 +45,7 @@ If you are proposing a feature:
 
 * Explain in detail how it would work.
 * Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that contributions
-  are welcome :)
+* Remember that this is a volunteer-driven project, and that contributions are welcome :)
 
 ## Get Started!
 
@@ -55,38 +54,38 @@ Ready to contribute? Here's how to set up {}`{{cookiecutter.project_slug}}` for 
 1. Fork the {}`{{cookiecutter.project_slug}}` repo on GitHub.
 2. Clone your fork locally:
 
-   ```
-   $ git clone {{cookiecutter.repository_url}}
-   ```
+    ```
+    $ git clone {{cookiecutter.repository_url}}
+    ```
 3. Install your local copy into a virtualenv:
 
-   ```
-   $ cd {{cookiecutter.project_slug}}/
-   $ python3 -m venv venv
-   $ source venv/bin/activate
-   $ python3 -m pip instlal .[dev]
-   ```
+    ```
+    $ cd {{cookiecutter.project_slug}}/
+    $ python3 -m venv venv
+    $ source venv/bin/activate
+    $ python3 -m pip instlal .[dev]
+    ```
 4. Create a branch for local development:
 
-   ```
-   $ git checkout -b name-of-your-bugfix-or-feature
-   ```
+    ```
+    $ git checkout -b name-of-your-bugfix-or-feature
+    ```
 
-   Now you can make your changes locally.
+    Now you can make your changes locally.
 5. Make sure you have pre-commit installed and activated:
 
-   ```
-   $ pre-commit install
-   $ pre-commit run --all-files
-   ```
+    ```
+    $ pre-commit install
+    $ pre-commit run --all-files
+    ```
 
 6. Commit your changes and push your branch to GitHub:
 
-   ```
-   $ git add .
-   $ git commit -m "Your detailed description of your changes."
-   $ git push origin name-of-your-bugfix-or-feature
-   ```
+    ```
+    $ git add .
+    $ git commit -m "Your detailed description of your changes."
+    $ git push origin name-of-your-bugfix-or-feature
+    ```
 7. Submit a pull request through the GitHub website.
 
 ## Pull Request Guidelines
@@ -95,8 +94,8 @@ Before you submit a pull request, check that it meets these guidelines:
 
 1. The pull request should include tests.
 2. If the pull request adds functionality, the docs should be updated. Put
-   your new functionality into a function with a docstring, and add the
-   feature to the list in README.rst.
+your new functionality into a function with a docstring, and add the
+feature to the list in README.rst.
 3. The pull request should work for multiple Python versions.
 
 ## Tips

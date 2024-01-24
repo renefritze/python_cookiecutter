@@ -1,0 +1,405 @@
+# vim: set syntax=python:
+
+import collections
+import copy
+import json
+import typing
+from collections import defaultdict
+from pathlib import Path
+
+only_linux_condition = {"type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux"}
+
+only_windows_condition = {
+    "type": "matches",
+    "string": "${hostSystemName}",
+    "regex": "Windows|CYGWIN.*|MSYS.*",
+}
+
+# metadata: https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html
+output_data = {
+    "version": 6,
+    "cmakeMinimumRequired": {"major": 3, "minor": 22, "patch": 0},
+}
+
+# platforms
+windows = "win"
+linux = "linux"
+
+# CMake Build Types
+release = "Release"
+debug = "Debug"
+coverage = "Coverage"
+checked = "RelWithChecks"
+cmake_configuration_types = [release, debug, coverage, checked]
+gcc_warnings = "-Wall -Werror -pedantic-errors -Wextra -Wconversion"
+clang_warnings = gcc_warnings
+# https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170
+# https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4251?view=msvc-170
+# suppress warnings about dll-interface and non-exported classes
+msvc_warnings = "/W4 /WX /wd4275 /wd4251"
+
+# compilers
+gcc = "gcc"
+clang = "clang"
+msvc = "msvc"
+
+
+def sorted_presets(presets):
+    return sorted(presets, key=lambda x: x["name"])
+
+
+class Preset(collections.UserDict):
+    all_presets: typing.ClassVar = defaultdict(list)
+    _prefix: typing.ClassVar = "subclass_will_set_this"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.all_presets[self._prefix].append(self.data)
+
+    @classmethod
+    def all_presets_of_my_type(cls):
+        return cls.all_presets[cls._prefix]
+
+    def __setitem__(self, key, value):
+        if key == "name":
+            assert value not in [p["name"] for p in self.all_presets_of_my_type()], f"Duplicate preset name: {value}"
+        super().__setitem__(key, value)
+
+    def add_to_dict_fields(self, dict_name: str, add_dict: dict):
+        if dict_name not in self.data:
+            common_type = {type(add_dict[key]) for key in add_dict}
+            assert len(common_type) == 1, f"Cannot add dict with different types: {add_dict}"
+            self.data[dict_name] = defaultdict(next(common_type))
+        for key, value in add_dict.items():
+            self.data[dict_name][key] += value
+
+    def copy_as_new(self, name: str):
+        data = copy.deepcopy(self.data)
+        data["name"] = name
+        return type(self)(data)
+
+
+def _make_preset_class(prefix):
+    return type(f"prefix{Preset}", (Preset,), {"_prefix": prefix})
+
+
+ConfigurePreset = _make_preset_class("Configure")
+BuildPreset = _make_preset_class("Build")
+TestPreset = _make_preset_class("Test")
+PackagePreset = _make_preset_class("Package")
+
+
+class PresetEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Preset):
+            return o.data
+        return super().default(o)
+
+
+def _configure_presets():
+    ninja_base = ConfigurePreset(
+        {
+            "name": "ninja",
+            "hidden": True,
+            "generator": "Ninja Multi-Config",
+        }
+    )
+    common_base = ConfigurePreset(
+        {
+            "name": "base",
+            "hidden": True,
+            "cacheVariables": {
+                "CMAKE_CONFIGURATION_TYPES": ";".join(cmake_configuration_types),
+                "CMAKE_CXX_SCAN_FOR_MODULES": "Off",
+            },
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/build/${presetName}/install",
+        }
+    )
+
+    windows_base = ConfigurePreset(
+        {
+            "name": "windows_base",
+            "hidden": True,
+            "inherits": [common_base["name"]],
+            "condition": only_windows_condition,
+        }
+    )
+    linux_base = ConfigurePreset(
+        {
+            "name": "linux_base",
+            "hidden": True,
+            "inherits": [common_base["name"], ninja_base["name"]],
+            "condition": only_linux_condition,
+        }
+    )
+    clang_base = ConfigurePreset(
+        {
+            "name": "clang_base",
+            "hidden": True,
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_CXX_FLAGS": clang_warnings,
+                f"CMAKE_CXX_FLAGS_{debug.upper()}": "-Og -g -DOASYS_CORE_ENABLE_CHECKS",
+                f"CMAKE_CXX_FLAGS_{release.upper()}": "-O3 ",
+                f"CMAKE_CXX_FLAGS_{checked.upper()}": "-O3 -g -DOASYS_CORE_ENABLE_CHECKS",
+                f"CMAKE_CXX_FLAGS_{coverage.upper()}": "-Og -g -fcoverage-mcdc -fprofile-instr-generate -fcoverage-mapping -DOASYS_CORE_ENABLE_CHECKS",
+            },
+        }
+    )
+    gcc_base = ConfigurePreset(
+        {
+            "name": "gcc_base",
+            "hidden": True,
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "g++",
+                "CMAKE_CXX_FLAGS": gcc_warnings,
+                f"CMAKE_CXX_FLAGS_{debug.upper()}": "-Og -g -DOASYS_CORE_ENABLE_CHECKS",
+                f"CMAKE_CXX_FLAGS_{release.upper()}": "-O3 -flto=auto",
+                f"CMAKE_CXX_FLAGS_{checked.upper()}": "-O3 -flto=auto -g -DOASYS_CORE_ENABLE_CHECKS",
+                f"CMAKE_CXX_FLAGS_{coverage.upper()}": "-Og -g -fprofile-arcs -ftest-coverage -DOASYS_CORE_ENABLE_CHECKS",
+            },
+        }
+    )
+
+    # all above are base presets that should be hidden
+    # now we create the directly usable presets
+    msys_gcc = ConfigurePreset(
+        {
+            "name": "win_gcc",
+            "hidden": False,
+            "inherits": [
+                common_base["name"],
+                ninja_base["name"],
+                windows_base["name"],
+            ],
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-msys-static-gcc",
+                "VCPKG_HOST_TRIPLET": "x64-msys-static-gcc",
+                "BUILD_SHARED_LIBS": "OFF",
+                f"CMAKE_CXX_FLAGS_{coverage.upper()}": f"{gcc_base['cacheVariables'][f'CMAKE_CXX_FLAGS_{coverage.upper()}']}",
+            },
+        }
+    )
+
+    msys_clang = msys_gcc.copy_as_new(name="win_clang")
+    # we override the release* flags here to disable LTO which results in goLD error in msys clang 18
+    msys_clang["cacheVariables"] = {
+        "VCPKG_TARGET_TRIPLET": "x64-msys-static-clang",
+        "VCPKG_HOST_TRIPLET": "x64-msys-static-clang",
+        "BUILD_SHARED_LIBS": "OFF",
+        f"CMAKE_CXX_FLAGS_{release.upper()}": "-O3",
+        f"CMAKE_CXX_FLAGS_{checked.upper()}": "-O3 -g -DOASYS_CORE_ENABLE_CHECKS",
+    }
+    msys_clang["inherits"].append(clang_base["name"])
+    msys_gcc["inherits"].append(gcc_base["name"])
+
+    linux_gcc = ConfigurePreset(
+        {
+            "name": "linux_gcc",
+            "hidden": False,
+            "inherits": [
+                common_base["name"],
+                ninja_base["name"],
+                linux_base["name"],
+            ],
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-linux-gcc",
+                "VCPKG_HOST_TRIPLET": "x64-linux-gcc",
+            },
+        }
+    )
+    linux_clang = linux_gcc.copy_as_new(name="linux_clang")
+    linux_gcc["inherits"].append(gcc_base["name"])
+    linux_clang["inherits"].append(clang_base["name"])
+    linux_clang["cacheVariables"] = {
+        "VCPKG_TARGET_TRIPLET": "x64-linux-clang",
+        "VCPKG_HOST_TRIPLET": "x64-linux-clang",
+    }
+    win_msvc = ConfigurePreset(
+        {
+            "name": "win_msvc",
+            "binaryDir": "${sourceDir}/build/win_msvc",
+            "installDir": "${sourceDir}/build/win_msvc/install",
+            "hidden": False,
+            "inherits": [
+                windows_base["name"],
+            ],
+            "generator": "Ninja Multi-Config",
+            "cacheVariables": {
+                "CMAKE_CXX_FLAGS": f"{msvc_warnings} /bigobj",
+                f"CMAKE_CXX_FLAGS_{debug.upper()}": "/EHsc /Zi /Od  /DOASYS_CORE_ENABLE_CHECKS",
+                f"CMAKE_CXX_FLAGS_{release.upper()}": "/EHsc /O2",
+                f"CMAKE_CXX_FLAGS_{checked.upper()}": "/EHsc /O2 /Zi /DOASYS_CORE_ENABLE_CHECKS",
+                f"CMAKE_CXX_FLAGS_{coverage.upper()}": "/EHsc /O0 /PROFILE  /DOASYS_CORE_ENABLE_CHECKS",
+                f"CMAKE_MAP_IMPORTED_CONFIG_{checked.upper()}": "Release",
+                # TODO: we would like to map to "Debug" here but that gives linking errors
+                f"CMAKE_MAP_IMPORTED_CONFIG_{coverage.upper()}": "Release",
+                "VCPKG_TARGET_TRIPLET": "x64-msvc-static",
+                "VCPKG_HOST_TRIPLET": "x64-msvc-static",
+                "BUILD_SHARED_LIBS": "ON",
+            },
+        }
+    )
+    win_msbuild = win_msvc.copy_as_new(name="win_msbuild")
+    win_msbuild["generator"] = "Visual Studio 17 2022"
+    win_msbuild["binaryDir"] = "${sourceDir}/build/win_msbuild"
+    win_msbuild["installDir"] = "${sourceDir}/build/win_msbuild/install"
+
+    # do this after the copy since msbuild doesn't need it
+    win_msvc["cacheVariables"].update(
+        {
+            "CMAKE_C_COMPILER": "cl.exe",
+            "CMAKE_CXX_COMPILER": "cl.exe",
+        }
+    )
+
+    # add display names
+    for preset in ConfigurePreset.all_presets_of_my_type():
+        if preset.get("hidden", False):
+            continue
+        preset["displayName"] = preset["name"].split("_")[1].capitalize()
+    # combine all inherited names into a flat set
+    return sorted_presets(common_base.all_presets_of_my_type())
+
+
+def _build_presets(configure_presets):
+    """
+    For all non-hidden configure presets, create a build preset for all of our supported BUILD_TYPES
+    """
+    for cfg in configure_presets:
+        if cfg.get("hidden", False):
+            continue
+        for build_type in cmake_configuration_types:
+            BuildPreset(
+                {
+                    "name": f"{cfg['name']}_{build_type.lower()}",
+                    "configurePreset": cfg["name"],
+                    "displayName": build_type,
+                    # configuration refers to the CMAKE_BUILD_TYPE used. Relevant in Multi-Config generators
+                    "configuration": build_type,
+                }
+            )
+    return sorted_presets(BuildPreset.all_presets_of_my_type())
+
+
+def _test_presets(build_presets):
+    base = TestPreset(
+        {
+            "name": "test_base",
+            "displayName": "Test Base",
+            "hidden": True,
+            "output": {"outputOnFailure": True, "outputJUnitFile": "junit-${presetName}.xml"},
+            "execution": {"noTestsAction": "error"},
+        }
+    )
+    for bp in build_presets:
+        if bp.get("hidden", False):
+            continue
+        TestPreset(
+            {
+                "name": f"{bp['name']}",
+                "displayName": bp.get("displayName", bp["name"].replace("_", " ")),
+                "hidden": False,
+                "inherits": [base["name"]],
+                "configurePreset": bp["configurePreset"],
+                # configuration refers to the CMAKE_BUILD_TYPE. Relevant in Multi-Config generators
+                "configuration": bp["configuration"],
+            }
+        )
+    return sorted_presets(TestPreset.all_presets_of_my_type())
+
+
+def _package_presets(configure_presets, build_presets):
+    """
+    Generate NuGet presets for MSVC (and linux gcc for dev purposes).
+    One that includes all build types except coverage for the release workflow
+    and one each with a single build type for use in individual CI workflows.
+    """
+    for base_preset in (f"{windows}_{msvc}", f"{linux}_{gcc}"):
+        configure_preset = next(p for p in configure_presets if p["name"] == base_preset)
+        filtered_build_presets = [p for p in build_presets if base_preset in p["configurePreset"]]
+        build_types = [debug.upper(), release.upper()]
+        package_configs = [p for p in build_types if coverage.lower() not in p.lower()]
+        condition = only_windows_condition if base_preset.startswith(windows) else only_linux_condition
+        nuget_base = PackagePreset(
+            {"name": f"{base_preset}_nuget", "condition": condition, "hidden": True, "generators": ["NuGet"]}
+        )
+
+        _ = PackagePreset(
+            {
+                "name": base_preset,
+                "inherits": [nuget_base["name"]],
+                "hidden": False,
+                "configurePreset": configure_preset["name"],
+                "displayName": configure_preset["displayName"],
+                "configurations": package_configs,
+                "variables": {"build_configs_to_package": ";".join(build_types)},
+            }
+        )
+        for single_type in filtered_build_presets:
+            _ = PackagePreset(
+                {
+                    "name": f"{single_type['name']}",
+                    "configurePreset": single_type["configurePreset"],
+                    "displayName": single_type["displayName"],
+                    "configurations": [single_type["configuration"]],
+                    "inherits": [nuget_base["name"]],
+                    "hidden": False,
+                    "variables": {"build_configs_to_package": single_type["configuration"]},
+                }
+            )
+
+    return sorted_presets(PackagePreset.all_presets_of_my_type())
+
+
+def flatten_cache_variables(configure_preset):
+    cache_variables = configure_preset.get("cacheVariables", {})
+    inherited_presets = configure_preset.get("inherits", [])
+    for inherited_preset_name in inherited_presets:
+        inherited_preset = next(
+            p for p in ConfigurePreset.all_presets_of_my_type() if p["name"] == inherited_preset_name
+        )
+        # NOTE this will overwrite the "leaf" values with the inherited values, unclear what cmake actually does
+        cache_variables.update(flatten_cache_variables(inherited_preset))
+    return cache_variables
+
+
+def write_toolchain_file(this_dir: Path, compiler: str, configure_preset: dict):
+    warnings = globals().get(f"{compiler}_warnings")
+    if not warnings:
+        raise ValueError(f"No warnings for compiler: {compiler}")
+    toolchain_file = this_dir / ".vcpkg-overlays" / "toolchains" / f"{compiler}_include.cmake"
+    cmake_cache = flatten_cache_variables(configure_preset)
+    toolchain_file.parent.mkdir(parents=True, exist_ok=True)
+    with toolchain_file.open("wt") as tc_file:
+        tc_file.write("# This file is generated by .CMakePresets.json.in\n\n")
+        for key, value in cmake_cache.items():
+            # only keep (build-type specific) flags
+            if not key.startswith("CMAKE_CXX_FLAGS"):
+                continue
+            # we can't build all our dependencies with our strict warnings
+            flags = value.replace(warnings, "")
+            # the vcpkg toolchain file uses VCPKG_CXX_FLAGS_ instead of CMAKE_CXX_FLAGS_
+            tc_key = key.replace("CMAKE_", "VCPKG_")
+            # this potentially writes empty flags, but that's fine
+            tc_file.write(f'set({tc_key} "{flags}")\n')
+
+
+if __name__ == "__main__":
+    output_data["configurePresets"] = _configure_presets()
+    # for all configure presets, create build preset of the same name
+    output_data["buildPresets"] = _build_presets(output_data["configurePresets"])
+    # for all build presets, create test preset of the same name
+    output_data["testPresets"] = _test_presets(output_data["buildPresets"])
+    output_data["packagePresets"] = _package_presets(output_data["configurePresets"], output_data["buildPresets"])
+
+    this_dir = Path(__file__).resolve().absolute().parent
+    outfile = this_dir / "CMakePresets.json"
+    outfile.write_text(json.dumps(output_data, indent=4, cls=PresetEncoder) + "\n")
+
+    for preset_name in ["linux_gcc", "linux_clang", "win_msvc"]:
+        compiler = preset_name.split("_")[1]
+        cpr = output_data["configurePresets"]
+        configure_preset = next(p for p in cpr if p["name"] == preset_name)
+        write_toolchain_file(this_dir, compiler=compiler, configure_preset=configure_preset)

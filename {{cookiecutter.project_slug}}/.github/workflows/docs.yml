@@ -1,0 +1,69 @@
+---
+name: Docs
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+
+concurrency:
+  group: {% raw %}${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}{% endraw %}
+  cancel-in-progress: true
+
+jobs:
+  build_docs:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: {% raw %}${{ secrets.OASYS_REPO_SCOPE_GITHUB_PAT }}{% endraw %}
+          # we rely on git describe to create our project version, that needs all commits since the most recent tag
+          # there's no easy way to only get those -> fetch all
+        fetch-depth: 0
+    - uses: astral-sh/setup-uv@v5
+      name: Setup UV + Python
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
+          **/requirements*.txt
+          **/pyproject.toml
+          **/uv.lock
+        python-version: '3.12'
+    - name: Install doc building dependencies
+      run: |
+        sudo apt-get install -y doxygen ninja-build
+    - name: Configure git to allow access to internal repos
+      shell: bash -l {0}
+      # this mirrors what actions/checkout does to allow cloning internal repos
+      run: |
+        {% raw %}git config --global http.https://github.com/arup-group/.extraheader "AUTHORIZATION: basic $(printf "x-access-token:%s" "${{secrets.OASYS_REPO_SCOPE_GITHUB_PAT}}" | base64)"{% endraw %}
+    - name: Install dependencies docs
+      run: |
+        uv sync --group docs
+    - name: Build docs
+      run: |
+        make -C docs html
+    - name: Upload html artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: docs/_build/html/
+  deploy_docs:
+    runs-on: ubuntu-22.04
+    needs: [build_docs]
+    if: {% raw %}${{ github.ref == 'refs/heads/main' }}{% endraw %}
+    environment:
+      name: github-pages
+      url: {% raw %}${{ steps.deployment.outputs.page_url }}{% endraw %}
+    permissions:
+      pages: write          # to deploy to Pages
+      id-token: write       # to verify the deployment originates from an appropriate source
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4.0.2
+            # feature is still in private alpha
+            #   with:
+            #     preview: {% raw %}${{ github.ref != 'refs/heads/main' }}{% endraw %}
