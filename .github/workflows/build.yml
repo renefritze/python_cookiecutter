@@ -64,5 +64,5 @@ jobs:
     - name: upload generated projects
       uses: actions/upload-artifact@v4
       with:
-        name: cookie_python
+        name: cookie_python_${{ matrix.python-version }}
         path: /tmp/cookie_python
