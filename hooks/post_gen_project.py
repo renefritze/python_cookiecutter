@@ -41,7 +41,13 @@ def _git_init():
     subprocess.check_output(["git", "add", "."])
     if _precommit() == -1:
         _precommit()
-    subprocess.check_output(["git", "commit", "-am", "initial commit"])
+    try:
+        subprocess.check_output(["git", "commit", "-am", "initial commit"])
+    except subprocess.CalledProcessError:
+        subprocess.check_output(
+            ["git", "commit", "-am", "initial commit", "--no-verify"]
+        )
+        print("pre-commit failed, but commit was made anyway")
 
 
 if __name__ == "__main__":
