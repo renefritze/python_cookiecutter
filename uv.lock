@@ -387,7 +387,7 @@ wheels = [
 [[package]]
 name = "python-cookiecutter"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
     { name = "cookiecutter" },
     { name = "pre-commit" },
