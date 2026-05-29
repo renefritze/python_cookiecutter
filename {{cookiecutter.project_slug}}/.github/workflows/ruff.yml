@@ -12,9 +12,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install ruff
-        run: uv pip install --system ruff
+      - name: Install dependencies
+        run: uv sync --frozen --extra dev
       - name: Run ruff format check
-        run: ruff format --check .
+        run: uv run ruff format --check .
       - name: Run ruff lint
-        run: ruff check .
+        run: uv run ruff check .

@@ -39,9 +39,9 @@ jobs:
       with:
         python-version: ${{ matrix.config.py }}
     - name: Install dependencies
-      run: uv pip install --system .[ci]
+      run: uv sync --frozen --extra ci
     - name: run pytest
-      run: pytest
+      run: uv run pytest
     - name: Upload coverage
       uses: codecov/codecov-action@v4
       with:
@@ -50,5 +50,5 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: build docs
       run: |
-        uv pip install --system .[docs]
-        make -C docs html
+        uv sync --frozen --extra docs
+        uv run make -C docs html
