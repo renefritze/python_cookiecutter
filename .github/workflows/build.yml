@@ -9,22 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.12', '3.9', '3.10', '3.11']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
       fail-fast: false
-    env:
-      # cache busting if requirements haven't changed
-      CACHE_EPOCH: 1
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Cache pip
-      uses: actions/cache@v5
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ matrix.python-version }}
     - name: Cache pre-commit
       uses: actions/cache@v5
       with:
@@ -32,7 +26,7 @@ jobs:
         key: ${{ runner.os }}-pre-commit-${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install cookiecutter build
+        uv pip install --system cookiecutter build
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
         git config --global init.defaultBranch main
@@ -42,27 +36,27 @@ jobs:
         GIT=$(which git)
         sudo chmod -x ${GIT}
         cookiecutter -v --no-input -f -o /tmp/cookie_python . project_slug=foo1-bar minimum_python_version=${{ matrix.python-version }}
-        python -m pip install /tmp/cookie_python/foo1-bar
+        uv pip install --system /tmp/cookie_python/foo1-bar
         python -c "import foo1_bar; print(foo1_bar.__version__)"
-        python -m pip uninstall -y foo1
+        uv pip uninstall --system foo1-bar
         sudo chmod +x ${GIT}
     - name: with git only
       run: |
         cookiecutter -v --no-input -f -o /tmp/cookie_python . project_slug=foo2 minimum_python_version=${{ matrix.python-version }}
-        python -m pip install /tmp/cookie_python/foo2
-        python -m pip uninstall -y foo2
+        uv pip install --system /tmp/cookie_python/foo2
+        uv pip uninstall --system foo2
     - name: with git and pre-commit
       run: |
-        python -m pip install pre-commit
+        uv pip install --system pre-commit
         cookiecutter -v --no-input -f -o /tmp/cookie_python . project_slug=foo3 minimum_python_version=${{ matrix.python-version }}
-        python -m pip install /tmp/cookie_python/foo3
-        python -m pip uninstall -y foo3
+        uv pip install --system /tmp/cookie_python/foo3
+        uv pip uninstall --system foo3
         cd /tmp/cookie_python/foo3
         python -c "import tests"
-        python -m pip install .[dev]
+        uv pip install --system .[dev]
         make -C docs html
     - name: upload generated projects
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@v4
       with:
         name: cookie_python_${{ matrix.python-version }}
         path: /tmp/cookie_python
