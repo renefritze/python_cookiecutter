@@ -5,13 +5,14 @@ ENV_FILE?=.env
 include $(ENV_FILE)
 export $(shell sed 's/=.*//' $(ENV_FILE))
 
-.PHONY:  deps black docs
+.PHONY:  deps format docs
 
 deps:
 	./dependencies.py
 
-black:
-	black docs {{cookiecutter.project_slug}} tests
+format:
+	ruff format .
+	ruff check --fix .
 
 docs:
 	make -C docs html
