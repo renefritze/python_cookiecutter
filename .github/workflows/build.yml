@@ -26,7 +26,8 @@ jobs:
         key: ${{ runner.os }}-pre-commit-${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        uv pip install --system cookiecutter build
+        uv sync --frozen
+        echo "$GITHUB_WORKSPACE/.venv/bin" >> $GITHUB_PATH
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
         git config --global init.defaultBranch main
@@ -36,25 +37,22 @@ jobs:
         GIT=$(which git)
         sudo chmod -x ${GIT}
         cookiecutter -v --no-input -f -o /tmp/cookie_python . project_slug=foo1-bar minimum_python_version=${{ matrix.python-version }}
-        uv pip install --system /tmp/cookie_python/foo1-bar
-        python -c "import foo1_bar; print(foo1_bar.__version__)"
-        uv pip uninstall --system foo1-bar
+        cd /tmp/cookie_python/foo1-bar
+        uv sync --frozen
+        uv run python -c "import foo1_bar; print(foo1_bar.__version__)"
         sudo chmod +x ${GIT}
     - name: with git only
       run: |
         cookiecutter -v --no-input -f -o /tmp/cookie_python . project_slug=foo2 minimum_python_version=${{ matrix.python-version }}
-        uv pip install --system /tmp/cookie_python/foo2
-        uv pip uninstall --system foo2
+        cd /tmp/cookie_python/foo2
+        uv sync --frozen
     - name: with git and pre-commit
       run: |
-        uv pip install --system pre-commit
         cookiecutter -v --no-input -f -o /tmp/cookie_python . project_slug=foo3 minimum_python_version=${{ matrix.python-version }}
-        uv pip install --system /tmp/cookie_python/foo3
-        uv pip uninstall --system foo3
         cd /tmp/cookie_python/foo3
-        python -c "import tests"
-        uv pip install --system .[dev]
-        make -C docs html
+        uv sync --frozen --extra dev
+        uv run python -c "import tests"
+        uv run make -C docs html
     - name: upload generated projects
       uses: actions/upload-artifact@v4
       with:

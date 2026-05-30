@@ -5,6 +5,15 @@ import sys
 import subprocess
 
 
+def _uv_lock():
+    try:
+        subprocess.check_output(["uv", "lock"], stderr=subprocess.STDOUT)
+    except (PermissionError, FileNotFoundError) as e:
+        print(f"uv not found, skipping lock file generation: {e}")
+    except subprocess.CalledProcessError as e:
+        print(f"uv lock failed: {e.output.decode()}")
+
+
 def _precommit():
     def _error(e):
         print(e.output)
@@ -51,6 +60,8 @@ def _git_init():
 
 
 if __name__ == "__main__":
+    _uv_lock()
+
     if "{{ cookiecutter.create_git_repository|lower }}" != "yes":
         sys.exit(0)
 
