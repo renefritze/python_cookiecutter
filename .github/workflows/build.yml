@@ -54,7 +54,7 @@ jobs:
         uv run python -c "import tests"
         uv run make -C docs html
     - name: upload generated projects
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: cookie_python_${{ matrix.python-version }}
         path: /tmp/cookie_python
