@@ -2,7 +2,7 @@
     "__comment__": "https://github.com/tcort/markdown-link-check#config-file-format",
     "ignorePatterns": [
         {
-            "pattern": "^https://github.com/arup-group"
+            "pattern": "^https://github.com/{{cookiecutter.github_owner}}"
         }
     ]
 }
