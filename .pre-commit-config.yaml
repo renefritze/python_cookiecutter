@@ -17,7 +17,7 @@ repos:
       - id: ruff-format
 # The markdown-link-check can't access internal or private repos, see
 # .markdown_link_check_config.json on how to exclude more than the
-# github.com/arup-group
+# github.com/renefritze
   - repo: https://github.com/tcort/markdown-link-check
     rev: v3.11.2
     hooks:

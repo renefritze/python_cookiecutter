@@ -5,7 +5,7 @@
             "pattern": "cookiecutter.repository_url"
         },
         {
-            "pattern": "^https://github.com/arup-group"
+            "pattern": "^https://github.com/renefritze"
         }
     ]
 }
